@@ -5,7 +5,6 @@ module ::Sequel::Plugins::Crushyform
     def crushyform_schema
       @crushyform_schema ||= default_crushyform_schema
     end
-    def crushyform_schema=(h); @crushyform_schema=h; end
     def default_crushyform_schema
       out = {}
       db_schema.each do |k,v|
@@ -30,7 +29,6 @@ module ::Sequel::Plugins::Crushyform
         end
       }
     end
-    def crushyform_types=(h); @crushyform_types=h; end
   end
   
   module InstanceMethods
