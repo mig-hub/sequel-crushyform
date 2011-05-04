@@ -88,3 +88,12 @@ describe 'Crushyform when schema plugin is used' do
   
 end
 
+describe 'Crushyfield types' do
+  should 'escape html by default' do
+    Haiku.new.crushyinput(:title, {:input_value=>"<ScRipT >alert('test');</ScRipT >"}).should=="<input type='text' name='model[title]' value='&lt;ScRipT &gt;alert('test');&lt;/ScRipT &gt;' class='' />\n"
+  end
+  should 'not escape html if specified' do
+    Haiku.new.crushyinput(:title, {:input_value=>"<ScRipT >alert('test');</ScRipT >", :html_escape => false}).should=="<input type='text' name='model[title]' value='<ScRipT >alert('test');</ScRipT >' class='' />\n"
+  end
+end
+

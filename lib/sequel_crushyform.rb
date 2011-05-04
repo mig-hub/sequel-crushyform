@@ -22,6 +22,7 @@ module ::Sequel::Plugins::Crushyform
     def crushyform_types
       @crushyform_types ||= {
         :string => proc do |m,c,o|
+          "<input type='%s' name='%s' value='%s' class='%s' />\n" % [o[:input_type]||'text', o[:input_name], o[:input_value], o[:input_class]]
         end,
         :boolean => proc do |m,c,o|
         end,
@@ -32,11 +33,21 @@ module ::Sequel::Plugins::Crushyform
   end
   
   module InstanceMethods
-    def crushyfield(col, opts={})
-      col = col.to_sym
-      opts = self.class.crushyform_schema[col].update(opts)
-      func = self.class.crushyform_types.has_key?(opts[:type]) ? self.class.crushyform_types(opts[:type]) : self.class.crushyform_types(:string)
-      func.call(self,col,opts)
+    # crushyfield is crushyinput but with label+error
+    def crushyfield(col, o={})
+      crushyinput(col, opts)
+    end
+    def crushyinput(col, o={})
+      o = self.class.crushyform_schema[col].update(o)
+      o[:input_name] ||= "model[#{col}]"
+      o[:input_value] ||= self.__send__(col)
+      o[:input_value] = html_escape(o[:input_value]) unless o[:html_escape]==false
+      crushyform_type = self.class.crushyform_types.has_key?(o[:type]) ? self.class.crushyform_types[o[:type]] : self.class.crushyform_types[:string]
+      crushyform_type.call(self,col,o)
+    end
+    # Stolen from ERB
+    def html_escape(s)
+      s.to_s.gsub(/&/, "&amp;").gsub(/\"/, "&quot;").gsub(/>/, "&gt;").gsub(/</, "&lt;")
     end
   end
   
