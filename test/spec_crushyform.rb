@@ -95,5 +95,11 @@ describe 'Crushyfield types' do
   should 'not escape html if specified' do
     Haiku.new.crushyinput(:title, {:input_value=>"<ScRipT >alert('test');</ScRipT >", :html_escape => false}).should=="<input type='text' name='model[title]' value='<ScRipT >alert('test');</ScRipT >' class='' />\n"
   end
+  should 'not keep one-shot vars like :input_value in the crushyform_schema' do
+    Haiku.crushyform_schema[:title][:input_value].should==nil
+  end
+  should 'be able to turn the :string input into other similar types like password or hidden' do
+    Haiku.new.crushyinput(:title, {:input_type=>'password'}).should=="<input type='password' name='model[title]' value='' class='' />\n"
+  end
 end
 

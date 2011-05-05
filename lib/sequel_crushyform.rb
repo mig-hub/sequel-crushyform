@@ -38,7 +38,7 @@ module ::Sequel::Plugins::Crushyform
       crushyinput(col, opts)
     end
     def crushyinput(col, o={})
-      o = self.class.crushyform_schema[col].update(o)
+      o = self.class.crushyform_schema[col].dup.update(o)
       o[:input_name] ||= "model[#{col}]"
       o[:input_value] ||= self.__send__(col)
       o[:input_value] = html_escape(o[:input_value]) unless o[:html_escape]==false
