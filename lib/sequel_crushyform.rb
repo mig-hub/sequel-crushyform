@@ -66,6 +66,9 @@ module ::Sequel::Plugins::Crushyform
     # you'll have to override this method because for records without an id
     # have just 'new' as a prefix
     def crushyid_for(col); "%s-%s-%s" % [id||'new',self.class.name,col]; end
+    # What represents a required field
+    # Can be overriden
+    def crushyfield_required; "<span style='color:red;'> *</span>"; end
   end
   
 end
