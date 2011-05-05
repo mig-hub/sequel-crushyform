@@ -17,7 +17,7 @@ class Haiku < ::Sequel::Model
     primary_key :id
     String :title, :crushyform=>{:type=>:custom}
     text :body
-    Boolean :published, :default => true
+    Boolean :published
     foreign_key :author_id, :authors
   end
   create_table unless table_exists?
@@ -89,17 +89,25 @@ describe 'Crushyform when schema plugin is used' do
 end
 
 describe 'Crushyfield types' do
-  should 'escape html by default' do
-    Haiku.new.crushyinput(:title, {:input_value=>"<ScRipT >alert('test');</ScRipT >"}).should=="<input type='text' name='model[title]' value='&lt;ScRipT &gt;alert('test');&lt;/ScRipT &gt;' class='' />\n"
+  should 'escape html by default on text fields' do
+    Haiku.new.crushyinput(:title, {:input_value=>"<ScRipT >alert('test');</ScRipT >"}).should=="<input type='text' name='model[title]' value='&lt;ScRipT &gt;alert('test');&lt;/ScRipT &gt;' id='new-Haiku-title' class='' />\n"
+    Haiku.new.crushyinput(:body, {:input_value=>"<ScRipT >alert('test');</ScRipT >"}).should=="<textarea name='model[body]' id='new-Haiku-body' class=''>&lt;ScRipT &gt;alert('test');&lt;/ScRipT &gt;</textarea>\n"
   end
-  should 'not escape html if specified' do
-    Haiku.new.crushyinput(:title, {:input_value=>"<ScRipT >alert('test');</ScRipT >", :html_escape => false}).should=="<input type='text' name='model[title]' value='<ScRipT >alert('test');</ScRipT >' class='' />\n"
+  should 'not escape html on text field if specified' do
+    Haiku.new.crushyinput(:title, {:input_value=>"<ScRipT >alert('test');</ScRipT >", :html_escape => false}).should=="<input type='text' name='model[title]' value='<ScRipT >alert('test');</ScRipT >' id='new-Haiku-title' class='' />\n"
+    Haiku.new.crushyinput(:body, {:input_value=>"<ScRipT >alert('test');</ScRipT >", :html_escape => false}).should=="<textarea name='model[body]' id='new-Haiku-body' class=''><ScRipT >alert('test');</ScRipT ></textarea>\n"
   end
   should 'not keep one-shot vars like :input_value in the crushyform_schema' do
     Haiku.crushyform_schema[:title][:input_value].should==nil
   end
   should 'be able to turn the :string input into other similar types like password or hidden' do
-    Haiku.new.crushyinput(:title, {:input_type=>'password'}).should=="<input type='password' name='model[title]' value='' class='' />\n"
+    Haiku.new.crushyinput(:title, {:input_type=>'password'}).should=="<input type='password' name='model[title]' value='' id='new-Haiku-title' class='' />\n"
+  end
+  should 'set booleans correctly' do
+    Haiku.new.published.should==nil
+    Haiku.new.crushyinput(:published).should=="<span class=''><input type='radio' name='model[published]' value='true' id='new-Haiku-published'  /> <label for='new-Haiku-published'>Yes</label> <input type='radio' name='model[published]' value='false' id='new-Haiku-published-no' checked /> <label for='new-Haiku-published-no'>No</label></span>\n"
+    Haiku.new.crushyinput(:published,{:input_value=>true}).should=="<span class=''><input type='radio' name='model[published]' value='true' id='new-Haiku-published' checked /> <label for='new-Haiku-published'>Yes</label> <input type='radio' name='model[published]' value='false' id='new-Haiku-published-no'  /> <label for='new-Haiku-published-no'>No</label></span>\n"
+    Haiku.new.crushyinput(:published,{:input_value=>false}).should=="<span class=''><input type='radio' name='model[published]' value='true' id='new-Haiku-published'  /> <label for='new-Haiku-published'>Yes</label> <input type='radio' name='model[published]' value='false' id='new-Haiku-published-no' checked /> <label for='new-Haiku-published-no'>No</label></span>\n"
   end
 end
 
