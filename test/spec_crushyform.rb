@@ -110,8 +110,11 @@ describe 'Crushyfield types' do
     Haiku.new.crushyinput(:published,{:input_value=>false}).should.match(/<input[^>]+value='false'[^>]+checked \/>/)
   end
   should 'have :required option which is a text representing requirement and defaulting to blank' do
-    Review.new.crushyinput(:title).should.not.match(/#{Review.crushyfield_required}/)
+    Review.new.crushyinput(:title).should.not.match(/#{Regexp.escape Review.crushyfield_required}/)
     Review.new.crushyinput(:title,{:required=>" required"}).should.match(/required/)
+  end
+  should 'use the default requirement text when :required option is true instead of a string' do
+    Review.new.crushyinput(:title,{:required=>true}).should.match(/#{Regexp.escape Review.crushyfield_required}/)
   end
 end
 
