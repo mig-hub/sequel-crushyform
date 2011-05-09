@@ -22,7 +22,7 @@ module ::Sequel::Plugins::Crushyform
     def crushyform_types
       @crushyform_types ||= {
         :string => proc do |m,c,o|
-          "<input type='%s' name='%s' value='%s' id='%s' class='%s' />\n" % [o[:input_type]||'text', o[:input_name], o[:input_value], m.crushyid_for(c), o[:input_class]]
+          "<input type='%s' name='%s' value='%s' id='%s' class='%s' />%s\n" % [o[:input_type]||'text', o[:input_name], o[:input_value], m.crushyid_for(c), o[:input_class], o[:required]]
         end,
         :boolean => proc do |m,c,o|
           crushid = m.crushyid_for(c)
@@ -35,10 +35,13 @@ module ::Sequel::Plugins::Crushyform
           out % [o[:input_class], o[:input_name], crushid, s[0], crushid, o[:input_name], crushid, s[1], crushid]
         end,
         :text => proc do |m,c,o|
-          "<textarea name='%s' id='%s' class='%s'>%s</textarea>\n" % [o[:input_name], m.crushyid_for(c), o[:input_class], o[:input_value]]
+          "<textarea name='%s' id='%s' class='%s'>%s</textarea>%s\n" % [o[:input_name], m.crushyid_for(c), o[:input_class], o[:input_value], o[:required]]
         end
       }
     end
+    # What represents a required field
+    # Can be overriden
+    def crushyfield_required; "<span class='crushyfield-required'> *</span>"; end
   end
   
   module InstanceMethods
@@ -51,6 +54,7 @@ module ::Sequel::Plugins::Crushyform
       o[:input_name] ||= "model[#{col}]"
       o[:input_value] = o[:input_value].nil? ? self.__send__(col) : o[:input_value]
       o[:input_value] = html_escape(o[:input_value]) if (o[:input_value].is_a?(String) && o[:html_escape]!=false)
+      o[:required] = o[:required]==true ? self.class.crushyfield_required : o[:required]
       crushyform_type = self.class.crushyform_types.has_key?(o[:type]) ? self.class.crushyform_types[o[:type]] : self.class.crushyform_types[:string]
       crushyform_type.call(self,col,o)
     end
@@ -66,9 +70,6 @@ module ::Sequel::Plugins::Crushyform
     # you'll have to override this method because for records without an id
     # have just 'new' as a prefix
     def crushyid_for(col); "%s-%s-%s" % [id||'new',self.class.name,col]; end
-    # What represents a required field
-    # Can be overriden
-    def crushyfield_required; "<span style='color:red;'> *</span>"; end
   end
   
 end
