@@ -36,6 +36,21 @@ module ::Sequel::Plugins::Crushyform
         end,
         :text => proc do |m,c,o|
           "<textarea name='%s' id='%s' class='%s'>%s</textarea>%s\n" % [o[:input_name], m.crushyid_for(c), o[:input_class], o[:input_value], o[:required]]
+        end,
+        :date => proc do |m,c,o|
+          o[:input_value] = "%s-%s-%s" % [o[:input_value].year, o[:input_value].month, o[:input_value].day] if o[:input_value].is_a?(Sequel.datetime_class)
+          o[:required] = "%s Format: yyyy-mm-dd" % [o[:required]]
+          crushyform_types[:string].call(m,c,o)
+        end,
+        :time => proc do |m,c,o|
+          o[:input_value] = "%s:%s:%s" % [o[:input_value].hour, o[:input_value].min, o[:input_value].sec] if o[:input_value].is_a?(Sequel.datetime_class)
+          o[:required] = "%s Format: hh:mm:ss" % [o[:required]]
+          crushyform_types[:string].call(m,c,o)
+        end,
+        :datetime => proc do |m,c,o|
+          o[:input_value] = "%s-%s-%s %s:%s:%s" % [o[:input_value].year, o[:input_value].month, o[:input_value].day, o[:input_value].hour, o[:input_value].min, o[:input_value].sec] if o[:input_value].is_a?(Sequel.datetime_class)
+          o[:required] = "%s Format: yyyy-mm-dd hh:mm:ss" % [o[:required]]
+          crushyform_types[:string].call(m,c,o)
         end
       }
     end

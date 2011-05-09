@@ -49,6 +49,17 @@ class Review < ::Sequel::Model
   many_to_one :haiku
 end
 
+class TestDateTime < ::Sequel::Model
+  plugin :schema
+  set_schema do
+    primary_key :id
+    Date :birth
+    time :meeting
+    DateTime :updated_at
+  end
+  create_table unless table_exists?
+end
+
 describe 'Crushyform when schema plugin is not used' do
   
   should 'have a correct default crushyform_schema' do
@@ -92,6 +103,9 @@ describe 'Crushyfield types' do
   should 'escape html by default on text fields' do
     Haiku.new.crushyinput(:title, {:input_value=>"<ScRipT >alert('test');</ScRipT >"}).should.match(/&lt;ScRipT &gt;alert\('test'\);&lt;\/ScRipT &gt;/)
     Haiku.new.crushyinput(:body, {:input_value=>"<ScRipT >alert('test');</ScRipT >"}).should.match(/&lt;ScRipT &gt;alert\('test'\);&lt;\/ScRipT &gt;/)
+    TestDateTime.new.crushyinput(:birth, {:input_value=>"<ScRipT >alert('test');</ScRipT >"}).should.match(/&lt;ScRipT &gt;alert\('test'\);&lt;\/ScRipT &gt;/)
+    TestDateTime.new.crushyinput(:meeting, {:input_value=>"<ScRipT >alert('test');</ScRipT >"}).should.match(/&lt;ScRipT &gt;alert\('test'\);&lt;\/ScRipT &gt;/)
+    TestDateTime.new.crushyinput(:updated_at, {:input_value=>"<ScRipT >alert('test');</ScRipT >"}).should.match(/&lt;ScRipT &gt;alert\('test'\);&lt;\/ScRipT &gt;/)
   end
   should 'not escape html on text field if specified' do
     Haiku.new.crushyinput(:title, {:input_value=>"<ScRipT >alert('test');</ScRipT >", :html_escape => false}).should.should.match(/<ScRipT >alert\('test'\);<\/ScRipT >/)
@@ -115,6 +129,20 @@ describe 'Crushyfield types' do
   end
   should 'use the default requirement text when :required option is true instead of a string' do
     Review.new.crushyinput(:title,{:required=>true}).should.match(/#{Regexp.escape Review.crushyfield_required}/)
+  end
+  should 'format date/time/datetime correctly' do
+    TestDateTime.new.db_schema[:meeting][:type].should== :time # Check that the correct type is used for following tests (see README)
+    TestDateTime.new.crushyinput(:birth).should.match(/value=''/)
+    TestDateTime.new.crushyinput(:birth,{:input_value=>::Time.now}).should.match(/value='\d{4}-\d{1,2}-\d{1,2}'/)
+    TestDateTime.new.crushyinput(:meeting).should.match(/value=''/)
+    TestDateTime.new.crushyinput(:meeting,{:input_value=>::Time.now}).should.match(/value='\d{1,2}:\d{1,2}:\d{1,2}'/)
+    TestDateTime.new.crushyinput(:updated_at).should.match(/value=''/)
+    TestDateTime.new.crushyinput(:updated_at,{:input_value=>::Time.now}).should.match(/value='\d{4}-\d{1,2}-\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}'/)
+  end
+  should 'add format instructions for date/time/datetime after :required bit' do
+    TestDateTime.new.crushyinput(:birth,{:required=>true}).should.match(/#{Regexp.escape Review.crushyfield_required} Format: yyyy-mm-dd/)
+    TestDateTime.new.crushyinput(:meeting,{:required=>true}).should.match(/#{Regexp.escape Review.crushyfield_required} Format: hh:mm:ss/)
+    TestDateTime.new.crushyinput(:updated_at,{:required=>true}).should.match(/#{Regexp.escape Review.crushyfield_required} Format: yyyy-mm-dd hh:mm:ss/)
   end
 end
 
