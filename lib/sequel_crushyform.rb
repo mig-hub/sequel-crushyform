@@ -62,12 +62,12 @@ module ::Sequel::Plugins::Crushyform
     def html_escape(s)
       s.to_s.gsub(/&/, "&amp;").gsub(/\"/, "&quot;").gsub(/>/, "&gt;").gsub(/</, "&lt;")
     end
-    # This ID is used to have a unique for the input field.
+    # This ID is used to have a unique reference for the input field.
     #
     #   Format: <id>-<class>-<column>
     #
     # If you plan to have more than one form for a new entry in the same page
-    # you'll have to override this method because for records without an id
+    # you'll have to override this method because records without an id
     # have just 'new' as a prefix
     def crushyid_for(col); "%s-%s-%s" % [id||'new',self.class.name,col]; end
   end
