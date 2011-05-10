@@ -57,6 +57,10 @@ module ::Sequel::Plugins::Crushyform
     # What represents a required field
     # Can be overriden
     def crushyfield_required; "<span class='crushyfield-required'> *</span>"; end
+    # Stolen from ERB
+    def html_escape(s)
+      s.to_s.gsub(/&/, "&amp;").gsub(/\"/, "&quot;").gsub(/>/, "&gt;").gsub(/</, "&lt;")
+    end
   end
   
   module InstanceMethods
@@ -68,14 +72,10 @@ module ::Sequel::Plugins::Crushyform
       o = self.class.crushyform_schema[col].dup.update(o)
       o[:input_name] ||= "model[#{col}]"
       o[:input_value] = o[:input_value].nil? ? self.__send__(col) : o[:input_value]
-      o[:input_value] = html_escape(o[:input_value]) if (o[:input_value].is_a?(String) && o[:html_escape]!=false)
+      o[:input_value] = self.class.html_escape(o[:input_value]) if (o[:input_value].is_a?(String) && o[:html_escape]!=false)
       o[:required] = o[:required]==true ? self.class.crushyfield_required : o[:required]
       crushyform_type = self.class.crushyform_types.has_key?(o[:type]) ? self.class.crushyform_types[o[:type]] : self.class.crushyform_types[:string]
       crushyform_type.call(self,col,o)
-    end
-    # Stolen from ERB
-    def html_escape(s)
-      s.to_s.gsub(/&/, "&amp;").gsub(/\"/, "&quot;").gsub(/>/, "&gt;").gsub(/</, "&lt;")
     end
     # This ID is used to have a unique reference for the input field.
     #
