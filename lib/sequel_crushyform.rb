@@ -53,7 +53,7 @@ module ::Sequel::Plugins::Crushyform
           crushyform_types[:string].call(m,c,o)
         end,
         :parent => proc do |m,c,o|
-          parent_class = association_reflection(c).associated_class
+          parent_class = association_reflection(c.to_s.sub(/_id$/,'').to_sym).associated_class
           option_list = parent_class.to_dropdown(o[:input_value])
           "<select name='%s' id='%s' class='%s'>%s</select>\n" % [o[:input_name], m.crushyid_for(c), o[:input_class], option_list]
         end
@@ -71,10 +71,18 @@ module ::Sequel::Plugins::Crushyform
     # So it is only rebuild once required after the list has changed
     # Maintaining an array and not rebuilding it all might be faster
     # But it will not happen much so that it is fairly acceptable
-    def to_dropdown(selection)
-      @dropdown_options ||= nil
+    def to_dropdown(selection=nil, nil_name='** UNDEFINED **')
+      dropdown_cache.inject("<option value=''>#{nil_name}</option>\n") do |out, row|
+        selected = 'selected' if row[0]==selection
+        "%s%s%s%s" % [out, row[1], selected, row[2]]
+      end
     end
-    def discard_dropdown; @dropdown_options = nil; end
+    def dropdown_cache
+      @dropdown_cache ||= label_dataset.inject([]) do |out,row|
+        out.push([row.id, "<option value='#{row.id}' ", ">#{row.to_label}</option>\n"])
+      end
+    end
+    def discard_dropdown_cache; @dropdown_cache = nil; end
     # Generic column names for label
     LABEL_COLUMNS = [:title, :label, :fullname, :full_name, :surname, :lastname, :last_name, :name, :firstname, :first_name, :caption, :reference, :file_name, :body]
     # Column used as a label

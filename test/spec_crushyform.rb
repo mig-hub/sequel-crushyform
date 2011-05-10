@@ -39,6 +39,7 @@ class Author < ::Sequel::Model
   one_to_many :haikus
 end
 Author.create(:name=>'Ray',:surname=>'Bradbury')
+Author.create(:name=>'Jorge Luis',:surname=>'Borges')
 
 DB.create_table :reviews do
   primary_key :id
@@ -75,6 +76,10 @@ class ShippingAddress < ::Sequel::Model
   create_table unless table_exists?
 end
 ShippingAddress.create(:address_body=>"3 Mulholland Drive\n\rFlat C", :postcode=>'90210', :city=>'Richville')
+
+# ========
+# = Test =
+# ========
 
 describe 'Crushyform when schema plugin is not used' do
   
@@ -141,6 +146,25 @@ describe 'Crushyform miscellaneous helpers' do
     ShippingAddress.label_column = :address_body
     ShippingAddress.first.to_label.should=="3 Mulholland Drive  Flat C"
   end
+  should 'build correct dropdowns' do
+    options = Author.to_dropdown(1)
+    options.lines.count.should==3
+    options.should.match(/<option[^>]+value='1'[^>]+selected>Bradbury<\/option>/)
+    options = Author.to_dropdown
+    options.should.not.match(/selected/)
+  end
+  should 'have custom wording for nil value for parent dropdowns' do
+    options = Author.to_dropdown(1,"Pick an Author")
+    options.should.match(/^<option value=''>Pick an Author<\/option>/)
+  end
+  should 'cache parent dropdowns' do
+    Author.create(:name=>'Yasunari', :surname=>'Kawabata')
+    options = Author.to_dropdown(1)
+    options.lines.count.should==3
+    Author.discard_dropdown_cache
+    options = Author.to_dropdown(1)
+    options.lines.count.should==4
+  end
 end
 
 describe 'Crushyfield types' do
@@ -187,6 +211,9 @@ describe 'Crushyfield types' do
     TestDateTime.new.crushyinput(:birth,{:required=>true}).should.match(/#{Regexp.escape Review.crushyfield_required} Format: yyyy-mm-dd/)
     TestDateTime.new.crushyinput(:meeting,{:required=>true}).should.match(/#{Regexp.escape Review.crushyfield_required} Format: hh:mm:ss/)
     TestDateTime.new.crushyinput(:when,{:required=>true}).should.match(/#{Regexp.escape Review.crushyfield_required} Format: yyyy-mm-dd hh:mm:ss/)
+  end
+  should 'build parent field with a wrapped version of parent_model#to_dropdown' do
+    Haiku.new.crushyinput(:author_id).should.match(/^<select.*>#{Regexp.escape Author.to_dropdown}<\/select>$/)
   end
 end
 
