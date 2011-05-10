@@ -33,10 +33,12 @@ class Author < ::Sequel::Model
   set_schema do
     primary_key :id
     String :name
+    String :surname
   end
   create_table unless table_exists?
   one_to_many :haikus
 end
+Author.create(:name=>'Ray',:surname=>'Bradbury')
 
 DB.create_table :reviews do
   primary_key :id
@@ -55,10 +57,24 @@ class TestDateTime < ::Sequel::Model
     primary_key :id
     Date :birth
     time :meeting
+    DateTime :when
+    DateTime :created_at
     DateTime :updated_at
   end
   create_table unless table_exists?
 end
+
+class ShippingAddress < ::Sequel::Model
+  plugin :schema
+  set_schema do
+    primary_key :id
+    text :address_body
+    String :postcode
+    String :city
+  end
+  create_table unless table_exists?
+end
+ShippingAddress.create(:address_body=>"3 Mulholland Drive\n\rFlat C", :postcode=>'90210', :city=>'Richville')
 
 describe 'Crushyform when schema plugin is not used' do
   
@@ -99,13 +115,41 @@ describe 'Crushyform when schema plugin is used' do
   
 end
 
+describe 'Crushyform miscellaneous helpers' do
+  should 'guess label columns using a list of common column names' do
+    Haiku.label_column.should==:title
+    Author.label_column.should==:surname # Respect order of search
+  end
+  should 'set Model::label_column' do
+    TestDateTime.label_column.should==nil
+    TestDateTime.label_column = :birth
+    TestDateTime.label_column.should==:birth
+    TestDateTime.label_column = nil
+  end
+  should 'have a shortcut for dataset only with columns relevant for building a dropdown' do
+    a = Author.label_dataset.first
+    a.surname.should=='Bradbury'
+    a.name.should==nil
+  end
+  should 'have a label based on Model::label_column' do
+    Author.first.to_label.should=='Bradbury'
+  end
+  should 'Have a fallback label when label_column is nil' do
+    ShippingAddress.first.to_label.should=="ShippingAddress 1"
+  end
+  should 'avoid line breaks if label column is a multiline field' do
+    ShippingAddress.label_column = :address_body
+    ShippingAddress.first.to_label.should=="3 Mulholland Drive  Flat C"
+  end
+end
+
 describe 'Crushyfield types' do
   should 'escape html by default on text fields' do
     Haiku.new.crushyinput(:title, {:input_value=>"<ScRipT >alert('test');</ScRipT >"}).should.match(/&lt;ScRipT &gt;alert\('test'\);&lt;\/ScRipT &gt;/)
     Haiku.new.crushyinput(:body, {:input_value=>"<ScRipT >alert('test');</ScRipT >"}).should.match(/&lt;ScRipT &gt;alert\('test'\);&lt;\/ScRipT &gt;/)
     TestDateTime.new.crushyinput(:birth, {:input_value=>"<ScRipT >alert('test');</ScRipT >"}).should.match(/&lt;ScRipT &gt;alert\('test'\);&lt;\/ScRipT &gt;/)
     TestDateTime.new.crushyinput(:meeting, {:input_value=>"<ScRipT >alert('test');</ScRipT >"}).should.match(/&lt;ScRipT &gt;alert\('test'\);&lt;\/ScRipT &gt;/)
-    TestDateTime.new.crushyinput(:updated_at, {:input_value=>"<ScRipT >alert('test');</ScRipT >"}).should.match(/&lt;ScRipT &gt;alert\('test'\);&lt;\/ScRipT &gt;/)
+    TestDateTime.new.crushyinput(:when, {:input_value=>"<ScRipT >alert('test');</ScRipT >"}).should.match(/&lt;ScRipT &gt;alert\('test'\);&lt;\/ScRipT &gt;/)
   end
   should 'not escape html on text field if specified' do
     Haiku.new.crushyinput(:title, {:input_value=>"<ScRipT >alert('test');</ScRipT >", :html_escape => false}).should.should.match(/<ScRipT >alert\('test'\);<\/ScRipT >/)
@@ -136,13 +180,13 @@ describe 'Crushyfield types' do
     TestDateTime.new.crushyinput(:birth,{:input_value=>::Time.now}).should.match(/value='\d{4}-\d{1,2}-\d{1,2}'/)
     TestDateTime.new.crushyinput(:meeting).should.match(/value=''/)
     TestDateTime.new.crushyinput(:meeting,{:input_value=>::Time.now}).should.match(/value='\d{1,2}:\d{1,2}:\d{1,2}'/)
-    TestDateTime.new.crushyinput(:updated_at).should.match(/value=''/)
-    TestDateTime.new.crushyinput(:updated_at,{:input_value=>::Time.now}).should.match(/value='\d{4}-\d{1,2}-\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}'/)
+    TestDateTime.new.crushyinput(:when).should.match(/value=''/)
+    TestDateTime.new.crushyinput(:when,{:input_value=>::Time.now}).should.match(/value='\d{4}-\d{1,2}-\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}'/)
   end
   should 'add format instructions for date/time/datetime after :required bit' do
     TestDateTime.new.crushyinput(:birth,{:required=>true}).should.match(/#{Regexp.escape Review.crushyfield_required} Format: yyyy-mm-dd/)
     TestDateTime.new.crushyinput(:meeting,{:required=>true}).should.match(/#{Regexp.escape Review.crushyfield_required} Format: hh:mm:ss/)
-    TestDateTime.new.crushyinput(:updated_at,{:required=>true}).should.match(/#{Regexp.escape Review.crushyfield_required} Format: yyyy-mm-dd hh:mm:ss/)
+    TestDateTime.new.crushyinput(:when,{:required=>true}).should.match(/#{Regexp.escape Review.crushyfield_required} Format: yyyy-mm-dd hh:mm:ss/)
   end
 end
 

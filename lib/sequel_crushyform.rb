@@ -51,6 +51,11 @@ module ::Sequel::Plugins::Crushyform
           o[:input_value] = "%s-%s-%s %s:%s:%s" % [o[:input_value].year, o[:input_value].month, o[:input_value].day, o[:input_value].hour, o[:input_value].min, o[:input_value].sec] if o[:input_value].is_a?(Sequel.datetime_class)
           o[:required] = "%s Format: yyyy-mm-dd hh:mm:ss" % [o[:required]]
           crushyform_types[:string].call(m,c,o)
+        end,
+        :parent => proc do |m,c,o|
+          parent_class = association_reflection(c).associated_class
+          option_list = parent_class.to_dropdown(o[:input_value])
+          "<select name='%s' id='%s' class='%s'>%s</select>\n" % [o[:input_name], m.crushyid_for(c), o[:input_class], option_list]
         end
       }
     end
@@ -61,6 +66,22 @@ module ::Sequel::Plugins::Crushyform
     def html_escape(s)
       s.to_s.gsub(/&/, "&amp;").gsub(/\"/, "&quot;").gsub(/>/, "&gt;").gsub(/</, "&lt;")
     end
+    # Cache dropdown options for children classes to use
+    # Meant to be discarded each time an entry is created or destroyed
+    # So it is only rebuild once required after the list has changed
+    # Maintaining an array and not rebuilding it all might be faster
+    # But it will not happen much so that it is fairly acceptable
+    def to_dropdown(selection)
+      @dropdown_options ||= nil
+    end
+    def discard_dropdown; @dropdown_options = nil; end
+    # Generic column names for label
+    LABEL_COLUMNS = [:title, :label, :fullname, :full_name, :surname, :lastname, :last_name, :name, :firstname, :first_name, :caption, :reference, :file_name, :body]
+    # Column used as a label
+    def label_column; @label_column ||= LABEL_COLUMNS.find{|c|columns.include?(c)}; end
+    def label_column=(n); @label_column=n; end
+    # Dataset selecting only columns used for building names
+    def label_dataset; select(:id, label_column); end
   end
   
   module InstanceMethods
@@ -69,12 +90,12 @@ module ::Sequel::Plugins::Crushyform
       crushyinput(col, opts)
     end
     def crushyinput(col, o={})
-      o = self.class.crushyform_schema[col].dup.update(o)
+      o = model.crushyform_schema[col].dup.update(o)
       o[:input_name] ||= "model[#{col}]"
       o[:input_value] = o[:input_value].nil? ? self.__send__(col) : o[:input_value]
-      o[:input_value] = self.class.html_escape(o[:input_value]) if (o[:input_value].is_a?(String) && o[:html_escape]!=false)
-      o[:required] = o[:required]==true ? self.class.crushyfield_required : o[:required]
-      crushyform_type = self.class.crushyform_types.has_key?(o[:type]) ? self.class.crushyform_types[o[:type]] : self.class.crushyform_types[:string]
+      o[:input_value] = model.html_escape(o[:input_value]) if (o[:input_value].is_a?(String) && o[:html_escape]!=false)
+      o[:required] = o[:required]==true ? model.crushyfield_required : o[:required]
+      crushyform_type = model.crushyform_types.has_key?(o[:type]) ? model.crushyform_types[o[:type]] : model.crushyform_types[:string]
       crushyform_type.call(self,col,o)
     end
     # This ID is used to have a unique reference for the input field.
@@ -85,6 +106,7 @@ module ::Sequel::Plugins::Crushyform
     # you'll have to override this method because records without an id
     # have just 'new' as a prefix
     def crushyid_for(col); "%s-%s-%s" % [id||'new',self.class.name,col]; end
+    def to_label; model.label_column.nil? ? "#{model} #{id}" : self.__send__(model.label_column).to_s.tr("\n\r", ' '); end
   end
   
 end
