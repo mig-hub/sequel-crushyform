@@ -21,6 +21,7 @@ module ::Sequel::Plugins::Crushyform
     # Types
     def crushyform_types
       @crushyform_types ||= {
+        :none => proc{''},
         :string => proc do |m,c,o|
           "<input type='%s' name='%s' value='%s' id='%s' class='%s' />%s\n" % [o[:input_type]||'text', o[:input_name], o[:input_value], m.crushyid_for(c), o[:input_class], o[:required]]
         end,
@@ -56,6 +57,9 @@ module ::Sequel::Plugins::Crushyform
           parent_class = association_reflection(c.to_s.sub(/_id$/,'').to_sym).associated_class
           option_list = parent_class.to_dropdown(o[:input_value])
           "<select name='%s' id='%s' class='%s'>%s</select>\n" % [o[:input_name], m.crushyid_for(c), o[:input_class], option_list]
+        end,
+        :attachment => proc do |m,c,o|
+          "%s<input type='file' name='%s' id='%s' class='%s' />%s\n" % [m.to_thumb(c), o[:input_name], m.crushyid_for(c), o[:input_class], o[:required]]
         end
       }
     end
@@ -114,7 +118,17 @@ module ::Sequel::Plugins::Crushyform
     # you'll have to override this method because records without an id
     # have just 'new' as a prefix
     def crushyid_for(col); "%s-%s-%s" % [id||'new',self.class.name,col]; end
+    # Used to determine a humanly readable representation of the entry on one line of text
     def to_label; model.label_column.nil? ? "#{model} #{id}" : self.__send__(model.label_column).to_s.tr("\n\r", ' '); end
+    # Provide a thumbnail for the column
+    def to_thumb(c)
+      current = self.__send__(c)
+      if model.respond_to?(:stash_reflection) && model.stash_reflection.key?(c)
+        !current.nil? && current[:type][/^image\//] ? "<img src='#{file_url(c, 'stash_thumb.gif')}?#{::Time.now.to_i.to_s}' /><br />\n" : ''
+      else
+        "<img src='#{current}?#{::Time.now.to_i.to_s}' width='100' onerror=\"this.style.display='none'\" />\n"
+      end
+    end
   end
   
 end

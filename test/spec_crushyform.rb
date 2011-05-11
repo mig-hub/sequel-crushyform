@@ -77,6 +77,20 @@ class ShippingAddress < ::Sequel::Model
 end
 ShippingAddress.create(:address_body=>"3 Mulholland Drive\n\rFlat C", :postcode=>'90210', :city=>'Richville')
 
+require 'stash_magic'
+class Attached < ::Sequel::Model
+  plugin :schema
+  set_schema do
+    primary_key :id
+    String :filename, :crushyform=>{:type=>:attachment}
+    String :filesize, :crushyform=>{:type=>:none}
+    String :filetype, :crushyform=>{:type=>:none}
+    String :map, :crushyform=>{:type=>:attachment}
+  end
+  create_table unless table_exists?
+  ::StashMagic.with_public_root ROOT+'/test'
+end
+
 # ========
 # = Test =
 # ========
@@ -165,9 +179,38 @@ describe 'Crushyform miscellaneous helpers' do
     options = Author.to_dropdown(1)
     options.lines.count.should==4
   end
+  should 'have a generic entry point overridable for grabbing thumbnails' do
+    Attached.new.respond_to?(:to_thumb).should==true
+  end
+  should 'have a thumbnail by default that use the content of column as path and invisible if path is broken' do
+    a = Attached.new.to_thumb(:filename)
+    a.should.match(/^<img.*\/>$/)
+    a.should.match(/src='\?\d*'/)
+    a.should.match(/onerror=\"this.style.display='none'\"/)
+    a = Attached.new.set(:filename=>'/book.png').to_thumb(:filename)
+    a.should.match(/^<img.*\/>$/)
+    a.should.match(/src='\/book\.png\?\d*'/)
+    a.should.match(/onerror=\"this.style.display='none'\"/)
+  end
+  should 'have a special thumbnail behavior adapted to StashMagic if that Gem is used on the specific field' do
+    a = Attached.new.set(:map=>"{:type=>'image/png',:name=>'map.png',:size=>20}")
+    b = Attached.new.set(:map=>"{:type=>'application/pdf',:name=>'map.pdf',:size=>20}")
+    Attached.stash :map # I do it only here so that I could enter test values as a simple string
+    field = a.to_thumb(:map)
+    field.should.match(/^<img.*\/><br \/>$/)
+    field.should.match(/src='\/stash\/Attached\/tmp\/map\.stash_thumb\.gif\?\d*'/)
+    field.should.not.match(/onerror=\"this.style.display='none'\"/)
+    # No preview if field is nil or not an image
+    a.map = nil
+    a.to_thumb(:map).should==''
+    b.to_thumb(:map).should==''
+  end
 end
 
 describe 'Crushyfield types' do
+  should 'have a type that does nothing' do
+    Attached.new.crushyinput(:filesize).should==''
+  end
   should 'escape html by default on text fields' do
     Haiku.new.crushyinput(:title, {:input_value=>"<ScRipT >alert('test');</ScRipT >"}).should.match(/&lt;ScRipT &gt;alert\('test'\);&lt;\/ScRipT &gt;/)
     Haiku.new.crushyinput(:body, {:input_value=>"<ScRipT >alert('test');</ScRipT >"}).should.match(/&lt;ScRipT &gt;alert\('test'\);&lt;\/ScRipT &gt;/)
@@ -217,3 +260,4 @@ describe 'Crushyfield types' do
   end
 end
 
+::FileUtils.rm_rf(ROOT+'/test/stash') if F.exists?(ROOT+'/test/stash')
