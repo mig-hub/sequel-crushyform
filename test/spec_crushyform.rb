@@ -258,6 +258,10 @@ describe 'Crushyfield types' do
   should 'build parent field with a wrapped version of parent_model#to_dropdown' do
     Haiku.new.crushyinput(:author_id).should.match(/^<select.*>#{Regexp.escape Author.to_dropdown}<\/select>$/)
   end
+  should 'display a preview with an attachment field whenever it is possible' do
+    a = Attached.new.set(:filename=>'/book.png')
+    a.crushyinput(:filename).should.match(/^#{Regexp.escape a.to_thumb(:filename)}<input type='file'.*\/>\n$/)
+  end
 end
 
 ::FileUtils.rm_rf(ROOT+'/test/stash') if F.exists?(ROOT+'/test/stash')
