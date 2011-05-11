@@ -172,12 +172,19 @@ describe 'Crushyform miscellaneous helpers' do
     options.should.match(/^<option value=''>Pick an Author<\/option>/)
   end
   should 'cache parent dropdowns' do
-    Author.create(:name=>'Yasunari', :surname=>'Kawabata')
-    options = Author.to_dropdown(1)
-    options.lines.count.should==3
-    Author.discard_dropdown_cache
-    options = Author.to_dropdown(1)
-    options.lines.count.should==4
+    Author.insert(:name=>'Matsuo', :surname=>'Basho') # insert or delete do not trigger hooks
+    Author.to_dropdown(1).lines.count.should==3
+    Author.reset_dropdown_cache
+    Author.to_dropdown(1).lines.count.should==4
+    Author.order(:id).last.delete
+  end
+  should 'have parent dropdown cache reseted when list is changed' do
+    a = Author.create(:name=>'Yasunari', :surname=>'Kawabati')
+    Author.to_dropdown(1).lines.count.should==4
+    a.update(:surname=>'Kawabata')
+    Author.to_dropdown(1).should.match(/Kawabata/)
+    a.destroy
+    Author.to_dropdown(1).lines.count.should==3
   end
   should 'have a generic entry point overridable for grabbing thumbnails' do
     Attached.new.respond_to?(:to_thumb).should==true

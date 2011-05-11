@@ -71,7 +71,7 @@ module ::Sequel::Plugins::Crushyform
       s.to_s.gsub(/&/, "&amp;").gsub(/\"/, "&quot;").gsub(/>/, "&gt;").gsub(/</, "&lt;")
     end
     # Cache dropdown options for children classes to use
-    # Meant to be discarded each time an entry is created or destroyed
+    # Meant to be reseted each time an entry is created or destroyed
     # So it is only rebuild once required after the list has changed
     # Maintaining an array and not rebuilding it all might be faster
     # But it will not happen much so that it is fairly acceptable
@@ -86,7 +86,7 @@ module ::Sequel::Plugins::Crushyform
         out.push([row.id, "<option value='#{row.id}' ", ">#{row.to_label}</option>\n"])
       end
     end
-    def discard_dropdown_cache; @dropdown_cache = nil; end
+    def reset_dropdown_cache; @dropdown_cache = nil; end
     # Generic column names for label
     LABEL_COLUMNS = [:title, :label, :fullname, :full_name, :surname, :lastname, :last_name, :name, :firstname, :first_name, :caption, :reference, :file_name, :body]
     # Column used as a label
@@ -129,6 +129,8 @@ module ::Sequel::Plugins::Crushyform
         "<img src='#{current}?#{::Time.now.to_i.to_s}' width='100' onerror=\"this.style.display='none'\" />\n"
       end
     end
+    def after_save; model.reset_dropdown_cache; super; end
+    def after_destroy; model.reset_dropdown_cache; super; end
   end
   
 end
