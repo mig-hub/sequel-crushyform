@@ -129,6 +129,7 @@ module ::Sequel::Plugins::Crushyform
         "<img src='#{current}?#{::Time.now.to_i.to_s}' width='100' onerror=\"this.style.display='none'\" />\n"
       end
     end
+    # Reset dropdowns on hooks
     def after_save; model.reset_dropdown_cache; super; end
     def after_destroy; model.reset_dropdown_cache; super; end
   end

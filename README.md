@@ -11,6 +11,19 @@ options:
 - :required text that says that the field is required (default is just blank)
 A ready-made value for that field is also available if you put `true` instead of a text. It is an asterisk with span class `crushyfield_required`
 
+TYPES OF FIELD
+--------------
+
+- :string is the default one so it is used when the field is :string type or anyone that is not in the list like :integer for instance
+- :none returns a blank string
+- :boolean
+- :text
+- :date is in the format YYYY-MM-DD because it is accepted by sequel setters as-is
+- :time is in the format HH:MM:SS because it is accepted by sequel setters as-is
+- :datetime is in the format YYYY-MM-DD HH:MM:SS because it is accepted by sequel setters as-is
+- :parent is a dropdown list to chose from
+- :attachment is for attachments saved on the file system. It tries to be customizable enough to adapt to many attachment solutions
+
 NOTE ABOUT TIME FIELDS
 ----------------------
 
