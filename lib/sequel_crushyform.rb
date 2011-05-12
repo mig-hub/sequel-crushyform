@@ -1,6 +1,7 @@
 module ::Sequel::Plugins::Crushyform
   
   module ClassMethods
+    def crushyform_version; [0,0,1]; end
     # Schema
     def crushyform_schema
       @crushyform_schema ||= default_crushyform_schema

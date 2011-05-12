@@ -137,6 +137,10 @@ end
 
 describe 'Crushyform miscellaneous helpers' do
   
+  should 'know its crushyform version' do
+    Haiku.crushyform_version.size.should==3
+  end
+  
   should 'have a correct default crushyid' do
     ShippingAddress.new.crushyid_for(:address_body).should=='new-ShippingAddress-address_body'
     ShippingAddress.first.crushyid_for(:address_body).should=='1-ShippingAddress-address_body'
