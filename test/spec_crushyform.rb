@@ -320,12 +320,12 @@ describe 'Crushyfield types' do
     h = Haiku.new
     h.valid?.should==false
     h.crushyfield(:title).should.match(/<span class='crushyfield-error-list'> - is not good - smells like shit<\/span>/)
-    h.crushyfield(:title).should.match(/^<p class='crushyfield-error'/)
+    h.crushyfield(:title).should.match(/^<p class='crushyfield crushyfield-error'/)
     h.crushyfield(:body).should.match(/<span class='crushyfield-error-list'><\/span>/)
-    h.crushyfield(:body).should.match(/^<p class=''/)
+    h.crushyfield(:body).should.match(/^<p class='crushyfield '/)
     # Not validated
     Haiku.new.crushyfield(:title).should.match(/<span class='crushyfield-error-list'><\/span>/)
-    Haiku.new.crushyfield(:title).should.match(/^<p class=''/)
+    Haiku.new.crushyfield(:title).should.match(/^<p class='crushyfield '/)
   end
   
 end

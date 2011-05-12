@@ -40,5 +40,6 @@ CSS CLASSES
 -----------
 
 - crushyfield-required is the class for the default required flag
+- crushyfield is used on the wrapping paragraph tag of every fields
 - crushyfield-error is used on the wrapping paragraph tag of a field containing errors
 - crushyfield-error-list is on the span that wraps the list of errors (is just a span, not an html list though)

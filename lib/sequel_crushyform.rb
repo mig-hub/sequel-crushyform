@@ -106,7 +106,7 @@ module ::Sequel::Plugins::Crushyform
     def crushyfield(col, o={})
       field_name = o[:name] || col.to_s.sub(/_id$/, '').tr('_', ' ').capitalize
       error_list = errors.on(col).map{|e|" - #{e}"} if !errors.on(col).nil?
-      "<p class='%s'><label for='%s'>%s</label><span class='crushyfield-error-list'>%s</span><br />\n%s</p>\n" % [error_list&&'crushyfield-error', crushyid_for(col), field_name, error_list, crushyinput(col, o)]
+      "<p class='crushyfield %s'><label for='%s'>%s</label><span class='crushyfield-error-list'>%s</span><br />\n%s</p>\n" % [error_list&&'crushyfield-error', crushyid_for(col), field_name, error_list, crushyinput(col, o)]
     end
     def crushyinput(col, o={})
       o = model.crushyform_schema[col].dup.update(o)
