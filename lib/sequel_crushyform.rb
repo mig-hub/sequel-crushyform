@@ -99,7 +99,7 @@ module ::Sequel::Plugins::Crushyform
   
   module InstanceMethods
     def crushyform(columns=model.crushyform_schema.keys, action=nil, meth='POST')
-      fields = columns.inject(""){|out,c|out+crushyfield(c)}
+      fields = columns.inject(""){|out,c|out+crushyfield(c.to_sym)}
       action.nil? ? fields : "<form action='%s' method='%s' enctype='multipart/form-data'>%s</form>\n" % [action, meth, fields]
     end
     # crushyfield is crushyinput but with label+error

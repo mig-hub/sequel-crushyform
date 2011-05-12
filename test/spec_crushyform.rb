@@ -337,6 +337,7 @@ describe 'Crushyform' do
     form.should.match(/action='\/receive_haiku'/)
     form.should.match(/method='POST'/)
     Haiku.new.crushyform([:title,:body,:author_id], '/receive_haiku').should==form # default to POST
+    Haiku.new.crushyform(['title','body','author_id'], '/receive_haiku').should==form # turn keys into symbols
   end
   
   should 'have only fields not wrapped with a form tag if action is nil' do
