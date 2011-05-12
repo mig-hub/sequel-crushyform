@@ -97,9 +97,15 @@ module ::Sequel::Plugins::Crushyform
   end
   
   module InstanceMethods
+    def crushyform(columns=model.crushyform_schema.keys, action=nil, meth='POST')
+      fields = columns.inject(""){|out,c|out+crushyfield(c)}
+      action.nil? ? fields : "<form action='%s' method='%s' enctype='multipart/form-data'>%s</form>\n" % [action, meth, fields]
+    end
     # crushyfield is crushyinput but with label+error
     def crushyfield(col, o={})
-      crushyinput(col, opts)
+      field_name = o[:name] || col.to_s.sub(/_id$/, '').tr('_', ' ').capitalize
+      error_list = errors.on(col).map{|e|" - #{e}"} if !errors.on(col).nil?
+      "<p class='%s'><label for='%s'>%s</label><span class='crushyfield-error-list'>%s</span><br />\n%s</p>\n" % [error_list&&'crushyfield-error', crushyid_for(col), field_name, error_list, crushyinput(col, o)]
     end
     def crushyinput(col, o={})
       o = model.crushyform_schema[col].dup.update(o)
@@ -107,7 +113,7 @@ module ::Sequel::Plugins::Crushyform
       o[:input_value] = o[:input_value].nil? ? self.__send__(col) : o[:input_value]
       o[:input_value] = model.html_escape(o[:input_value]) if (o[:input_value].is_a?(String) && o[:html_escape]!=false)
       o[:required] = o[:required]==true ? model.crushyfield_required : o[:required]
-      crushyform_type = model.crushyform_types.has_key?(o[:type]) ? model.crushyform_types[o[:type]] : model.crushyform_types[:string]
+      crushyform_type = model.crushyform_types[o[:type]] || model.crushyform_types[:string]
       crushyform_type.call(self,col,o)
     end
     # This ID is used to have a unique reference for the input field.

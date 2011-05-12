@@ -35,3 +35,10 @@ Otherwise it will use the Time ruby class which is a time including the date:
     Time :opening_hour   # type is :datetime
     time :opening_hour   # type is :time
   end
+
+CSS CLASSES
+-----------
+
+- crushyfield-required is the class for the default required flag
+- crushyfield-error is used on the wrapping paragraph tag of a field containing errors
+- crushyfield-error-list is on the span that wraps the list of errors (is just a span, not an html list though)
