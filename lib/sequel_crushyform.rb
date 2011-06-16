@@ -71,11 +71,11 @@ module ::Sequel::Plugins::Crushyform
     def html_escape(s)
       s.to_s.gsub(/&/, "&amp;").gsub(/\"/, "&quot;").gsub(/>/, "&gt;").gsub(/</, "&lt;")
     end
-    # Cache dropdown options for children classes to use
-    # Meant to be reseted each time an entry is created or destroyed
-    # So it is only rebuild once required after the list has changed
-    # Maintaining an array and not rebuilding it all might be faster
-    # But it will not happen much so that it is fairly acceptable
+    # Cache dropdown options for children classes to use  
+    # Meant to be reseted each time an entry is created or destroyed  
+    # So it is only rebuild once required after the list has changed  
+    # Maintaining an array and not rebuilding it all might be faster  
+    # But it will not happen much so that it is fairly acceptable  
     def to_dropdown(selection=nil, nil_name='** UNDEFINED **')
       dropdown_cache.inject("<option value=''>#{nil_name}</option>\n") do |out, row|
         selected = 'selected' if row[0]==selection
@@ -123,7 +123,8 @@ module ::Sequel::Plugins::Crushyform
     #
     # If you plan to have more than one form for a new entry in the same page
     # you'll have to override this method because records without an id
-    # have just 'new' as a prefix
+    # have just 'new' as a prefix.
+    # Which means there could be a colision.
     def crushyid_for(col); "%s-%s-%s" % [id||'new',self.class.name,col]; end
     # Used to determine a humanly readable representation of the entry on one line of text
     def to_label; model.label_column.nil? ? "#{model} #{id}" : self.__send__(model.label_column).to_s.tr("\n\r", ' '); end
