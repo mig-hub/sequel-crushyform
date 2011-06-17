@@ -72,7 +72,7 @@ module ::Sequel::Plugins::Crushyform
       s.to_s.gsub(/&/, "&amp;").gsub(/\"/, "&quot;").gsub(/>/, "&gt;").gsub(/</, "&lt;")
     end
     # Cache dropdown options for children classes to use  
-    # Meant to be reseted each time an entry is created or destroyed  
+    # Meant to be reseted each time an entry is created, updated or destroyed  
     # So it is only rebuild once required after the list has changed  
     # Maintaining an array and not rebuilding it all might be faster  
     # But it will not happen much so that it is fairly acceptable  

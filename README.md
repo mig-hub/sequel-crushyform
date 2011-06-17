@@ -4,14 +4,14 @@ I am also aware that this documentation is new and might lack some crucial infor
 but feel free to drop me a line if you have any question.
 
 HOW TO INSTALL ?
-----------------
+================
 
 Crushyform is a Ruby Gem so you can install it with:
 
     sudo gem install sequel-crushyform
 
 HOW TO USE ? (THE BASICS)
--------------------------
+=========================
 
 Crushyform is also a Sequel plugin so you can add the crushyform methods to all your models with:
 
@@ -59,10 +59,21 @@ Mainly because we want to add some other hidden inputs like a destination, a met
 Another reason might be that you want to add other fields to the tag. 
 The default tag is pretty basic and is always considered multipart/form-data for simplicity.
 
-THE CRUSHYFIELDS
-----------------
+CSS CLASSES
+===========
 
-As mentioned before, the form more like a way to gather all the field we're interested to have in a form.
+Here is the list of CSS classes used in order to style the forms.
+That should be enough, drop me a line if you feel something is missing.
+
+- crushyfield-required is the class for the default required flag
+- crushyfield is used on the wrapping paragraph tag of every fields
+- crushyfield-error is used on the wrapping paragraph tag of a field containing errors
+- crushyfield-error-list is on the span that wraps the list of errors (is just a span, not an html list though)
+
+THE CRUSHYFIELDS
+================
+
+As mentioned before, the form is more like a way to gather all the fields we're interested to have in a form.
 Which means you can have more control than that.
 You can have just one field at a time.
 In order to do that, you have 2 methods:
@@ -107,7 +118,7 @@ The default implementation is:
     end
 
 TYPES OF FIELD
---------------
+==============
 
 - :string is the default one so it is used when the field is :string type or anyone that is not in the list like :integer for instance
 - :none returns a blank string
@@ -119,10 +130,25 @@ TYPES OF FIELD
 - :parent is a dropdown list to chose from
 - :attachment is for attachments (who guessed?).
 
+MORE ABOUT DATE/TIME FIELDS
+---------------------------
+
 As you can see date/time/datetime field is a text input with a format specified on the side.
 We used to deal with it differently in the past, but nowadays this is the kind of field that is better to keep basic and offer a better interface with javascript.
 Better to give it a special :input_class through the options and make it a nice javascript date picker 
 instead of trying to complicate something that is gonna be ugly at the end anyway.
+
+Also if you want to use a proper time field (just time with no date), don't forget to declare it all lowercase in your schema.
+Otherwise it will use the Time ruby class which is a time including the date:
+
+  set_schema do
+    primary_key :id
+    Time :opening_hour   # type is :datetime
+    time :opening_hour   # type is :time
+  end
+
+MORE ABOUT ATTACHMENT FIELD
+---------------------------
 
 Regarding the :attachment type, it should be able to work with any kind of system. 
 We made it simple and customizable enough to adapt to many attachment solutions.
@@ -133,8 +159,63 @@ This is typically the kind of field that cannot really be guessed by crushyform.
 So you have to declare it as an :attachment.
 We see how it is done in the following chapter.
 
+Also when it can, crushyform tries to put a thumbnail of the attachment, above the file input when possible.
+It is done with an instance method that can be overriden by you: Model#to_thumb( column ).
+By default, it does the right job if you're using another Gem we've done called [Stash-Magic](https://github.com/mig-hub/stash_magic) .
+Otherwise crushyform assumes that the column contains the relative URL of an image.
+
+MORE ABOUT PARENT FIELDS
+------------------------
+
+The :parent field type is quite straight foreward and there is not much to say in order to be able to use it.
+It is interesting to see how it works though.
+You have a dropdown with all parents name instead of just a crude ID number.
+One interesting thing is that this dropdown is available for you to use for an Ajax update or whatever:
+
+    Author.to_dropdown( 3, "Choose your Author" )
+
+Both options are optional. The first one is the ID of the author that is selected (default is `nil`).
+And the second option is the text for the nil option (default is "** UNDEFINED **").
+
+This dropdown is cached in `Model::dropdown_cache` and is automatically reseted when you create, update or destroy an entry.
+Alternatively, you can do it with `Model::reset_dropdown_cache`.
+
+Another interesting thing is the way crushyform comes up with names.
+You rarely would have to do anything because it maintains an ordered list of columns that are appropriate for a name.
+The current list is in a constant:
+
+    LABEL_COLUMNS = [:title, :label, :fullname, :full_name, :surname, :lastname, :last_name, :name, :firstname, :first_name, :caption, :reference, :file_name, :body]
+
+In the worst case scenario, if it cannot find a column, crushyform will call it with the class name followed by the ID number.
+
+Alternatively, you can specify your own column:
+
+    Author.label_column = :my_label_column
+
+Or you can override the final instance method `Model::to_label`:
+
+    def to_label
+      self.my_label_column
+    end
+
+The good thing that this method is very useful in many places of CMS of your application, and even the front end:
+
+    @author.to_label
+
+It could even work with addresses.
+Crushyform turns a multi-line text in a one liner if it is the label column.
+
+    # Say the class Address has a column called :body which is the best choice for a label
+    #
+    # 4, Virginia Street
+    # Flat C
+    
+    @address.to_label # => 4, Virginia Street Flat C
+
+You get the idea.
+
 CRUSHYFORM SCHEMA
------------------
+=================
 
 So now some people might think that this is weird that you have to put the options each time you ask for a field.
 Well, the good news is that you don't.
@@ -179,26 +260,32 @@ For instance, in order to do the same thing as before:
 		  end
 		  create_table unless table_exists?
 		end
+		
+CUSTOM TYPE OF FIELD
+====================
 
-NOTE ABOUT TIME FIELDS
-----------------------
+You can obviously create a type of field that is not implemented in crushyform.
+If this is a useful one, it is probably better to fork the project on Github and send me a pull request.
+That way, you'll help crushyform being more interesting.
 
-If you want to use a proper time field (just time with no date), don't forget to declare it all lowercase in your schema.
-Otherwise it will use the Time ruby class which is a time including the date:
+Otherwise, the list of types is a Hash. Key is the name, and the value is a Proc with a couple of arguments.
+A dummy example could be:
 
-  set_schema do
-    primary_key :id
-    Time :opening_hour   # type is :datetime
-    time :opening_hour   # type is :time
-  end
+    Author.crushyform_types.update({
+      :dummy_type => proc do |instance, column_name, options|
+        "<p>You cannot change column: #{column_name}</p>"
+      end
+    })
 
-CSS CLASSES
------------
+So it returns a string.
+Pretty simple.
 
-- crushyfield-required is the class for the default required flag
-- crushyfield is used on the wrapping paragraph tag of every fields
-- crushyfield-error is used on the wrapping paragraph tag of a field containing errors
-- crushyfield-error-list is on the span that wraps the list of errors (is just a span, not an html list though)
+CHANGE LOG
+==========
 
-WHAT IS ALSO USEFULL OUTSIDE OF CRUSHYFORM ?
---------------------------------------------
+0.0.1 First version
+
+COPYRIGHT
+=========
+
+(c) 2011 Mickael Riga - see file LICENCE for details
