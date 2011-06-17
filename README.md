@@ -1,3 +1,10 @@
+CRUSHYFORM
+==========
+
+Crushyform is a Sequel plugin that helps building forms. 
+It basically does them for you so that you can forget about the boring part.
+The kind of thing which is good to have in your toolbox for building a CMS.
+
 We tried to make it as modular as possible but with sensible default values.
 
 I am also aware that this documentation is new and might lack some crucial information

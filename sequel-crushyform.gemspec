@@ -3,7 +3,7 @@ Gem::Specification.new do |s|
   s.version = "0.0.1"
   s.platform = Gem::Platform::RUBY
   s.summary = "A Sequel plugin that helps building forms"
-  s.description = "A Sequel plugin that helps building forms. It basically does them for you so that you can forget about the boring part."
+  s.description = "A Sequel plugin that helps building forms. It basically does them for you so that you can forget about the boring part. The kind of thing which is good to have in your toolbox for building a CMS."
   s.files = `git ls-files`.split("\n").sort
   s.require_path = './lib'
   s.author = "Mickael Riga"
