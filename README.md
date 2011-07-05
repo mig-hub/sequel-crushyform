@@ -209,14 +209,14 @@ Or you can override the final instance method `Model::to_label`:
       self.my_label_column
     end
 
-The good thing that this method is very useful in many places of CMS of your application, and even the front end:
+The good thing is that this method is very useful in many places of CMS of your application, and even the front end:
 
     @author.to_label
 
 It could even work with addresses.
 Crushyform turns a multi-line text in a one liner if it is the label column.
 
-    # Say the class Address has a column called :body which is the best choice for a label
+    # Say the class Address has a column called :body which is the last choice for a label in LABEL_COLUMNS
     #
     # 4, Virginia Street
     # Flat C
@@ -299,4 +299,4 @@ CHANGE LOG
 COPYRIGHT
 =========
 
-(c) 2011 Mickael Riga - see file LICENCE for details
+(c) 2011 Mickael Riga - see file LICENSE for details
