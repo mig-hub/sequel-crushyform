@@ -152,11 +152,11 @@ instead of trying to complicate something that is gonna be ugly at the end anywa
 Also if you want to use a proper time field (just time with no date), don't forget to declare it all lowercase in your schema.
 Otherwise it will use the Time ruby class which is a time including the date:
 
-  set_schema do
-    primary_key :id
-    Time :opening_hour   # type is :datetime
-    time :opening_hour   # type is :time
-  end
+    set_schema do
+      primary_key :id
+      Time :opening_hour   # type is :datetime
+      time :opening_hour   # type is :time
+    end
 
 MORE ABOUT ATTACHMENT FIELD
 ---------------------------
