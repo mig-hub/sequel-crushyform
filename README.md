@@ -163,7 +163,7 @@ MORE ABOUT ATTACHMENT FIELD
 
 Regarding the :attachment type, it should be able to work with any kind of system. 
 We made it simple and customizable enough to adapt to many attachment solutions.
-A called it :attachment because I never really use blobs, but it might be used with blobs as well.
+I called it :attachment because I never really use blobs, but it might be used with blobs as well.
 Once again because it is very basic.
 
 This is typically the kind of field that cannot really be guessed by crushyform.
