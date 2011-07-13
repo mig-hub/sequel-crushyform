@@ -158,6 +158,9 @@ Otherwise it will use the Time ruby class which is a time including the date:
       time :opening_hour   # type is :time
     end
 
+I wish I could use HTML5 date/time fields, but they are not implemented in many browsers yet, and
+it does not allow to ask for a specific format, which is a not really nice.
+
 MORE ABOUT ATTACHMENT FIELD
 ---------------------------
 
@@ -295,6 +298,7 @@ CHANGE LOG
 ==========
 
 0.0.1 First version
+0.0.2 Use HTML5 attribute `required`
 
 COPYRIGHT
 =========
