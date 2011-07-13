@@ -278,11 +278,20 @@ describe 'Crushyfield types' do
   
   should 'have :required option which is a text representing requirement and defaulting to blank' do
     Review.new.crushyinput(:title).should.not.match(/#{Regexp.escape Review.crushyfield_required}/)
-    Review.new.crushyinput(:title,{:required=>" required"}).should.match(/required/)
+    Review.new.crushyinput(:title,{:required=>" Required field"}).should.match(/Required field/)
   end
   
   should 'use the default requirement text when :required option is true instead of a string' do
     Review.new.crushyinput(:title,{:required=>true}).should.match(/#{Regexp.escape Review.crushyfield_required}/)
+  end
+  
+  should 'use HTML5 required attribute on required fields' do
+    Review.new.crushyinput(:title).should.match(/class=''  \/>/)
+    Review.new.crushyinput(:title,{:required=>true}).should.match(/class='' required \/>/)
+    Review.new.crushyinput(:title,{:required=>"Must Be"}).should.match(/class='' required \/>/)
+    Review.new.crushyinput(:body).should.match(/class='' >/)
+    Review.new.crushyinput(:body,{:required=>true}).should.match(/class='' required>/)
+    Review.new.crushyinput(:body,{:required=>"Must Be"}).should.match(/class='' required>/)
   end
   
   should 'format date/time/datetime correctly' do

@@ -24,7 +24,7 @@ module ::Sequel::Plugins::Crushyform
       @crushyform_types ||= {
         :none => proc{''},
         :string => proc do |m,c,o|
-          "<input type='%s' name='%s' value='%s' id='%s' class='%s' />%s\n" % [o[:input_type]||'text', o[:input_name], o[:input_value], m.crushyid_for(c), o[:input_class], o[:required]]
+          "<input type='%s' name='%s' value='%s' id='%s' class='%s' %s />%s\n" % [o[:input_type]||'text', o[:input_name], o[:input_value], m.crushyid_for(c), o[:input_class], o[:required]&&'required', o[:required]]
         end,
         :boolean => proc do |m,c,o|
           crushid = m.crushyid_for(c)
@@ -37,7 +37,7 @@ module ::Sequel::Plugins::Crushyform
           out % [o[:input_class], o[:input_name], crushid, s[0], crushid, o[:input_name], crushid, s[1], crushid]
         end,
         :text => proc do |m,c,o|
-          "<textarea name='%s' id='%s' class='%s'>%s</textarea>%s\n" % [o[:input_name], m.crushyid_for(c), o[:input_class], o[:input_value], o[:required]]
+          "<textarea name='%s' id='%s' class='%s' %s>%s</textarea>%s\n" % [o[:input_name], m.crushyid_for(c), o[:input_class], o[:required]&&'required', o[:input_value], o[:required]]
         end,
         :date => proc do |m,c,o|
           o[:input_value] = "%s-%s-%s" % [o[:input_value].year, o[:input_value].month, o[:input_value].day] if o[:input_value].is_a?(Sequel.datetime_class)
