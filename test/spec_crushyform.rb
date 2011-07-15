@@ -15,7 +15,7 @@ class Haiku < ::Sequel::Model
   plugin :schema
   set_schema do
     primary_key :id
-    String :title, :crushyform=>{:type=>:custom}
+    String :title, :crushyform=>{:type=>:custom, :name=>'Nice Title'}
     text :body
     Boolean :published
     foreign_key :author_id, :authors
@@ -126,7 +126,7 @@ describe 'Crushyform when schema plugin is used' do
   should 'use schema declaration for building the default crushyform_schema' do
     Haiku.default_crushyform_schema.should=={
       :id         => {:type=>:integer},
-      :title      => {:type=>:custom},
+      :title      => {:type=>:custom,:name=>'Nice Title'},
       :body       => {:type=>:text},
       :published  => {:type=>:boolean},
       :author_id  => {:type=>:parent}
@@ -323,6 +323,7 @@ describe 'Crushyfield types' do
     ShippingAddress.new.crushyfield(:address_body).should.match(/<label for='#{Regexp.escape ShippingAddress.new.crushyid_for(:address_body)}'>Address body<\/label>/)
     ShippingAddress.first.crushyfield(:address_body).should.match(/<label for='#{Regexp.escape ShippingAddress.first.crushyid_for(:address_body)}'>Address body<\/label>/)
     ShippingAddress.new.crushyfield(:address_body,{:name=>'Address Lines'}).should.match(/<label for='#{Regexp.escape ShippingAddress.new.crushyid_for(:address_body)}'>Address Lines<\/label>/)
+    Haiku.new.crushyfield(:title).should.match(/<label for='#{Regexp.escape Haiku.new.crushyid_for(:title)}'>Nice Title<\/label>/)
   end
   
   should 'have errors reported for fields' do

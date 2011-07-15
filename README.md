@@ -299,6 +299,7 @@ CHANGE LOG
 
 0.0.1 First version
 0.0.2 Use HTML5 attribute `required`
+0.0.3 Fix a bug on the default value for label :name
 
 COPYRIGHT
 =========

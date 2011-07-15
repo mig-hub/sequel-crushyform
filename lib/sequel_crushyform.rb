@@ -1,7 +1,7 @@
 module ::Sequel::Plugins::Crushyform
   
   module ClassMethods
-    def crushyform_version; [0,0,1]; end
+    def crushyform_version; [0,0,3]; end
     # Schema
     def crushyform_schema
       @crushyform_schema ||= default_crushyform_schema
@@ -105,7 +105,7 @@ module ::Sequel::Plugins::Crushyform
     end
     # crushyfield is crushyinput but with label+error
     def crushyfield(col, o={})
-      field_name = o[:name] || col.to_s.sub(/_id$/, '').tr('_', ' ').capitalize
+      field_name = o[:name] || model.crushyform_schema[col][:name] || col.to_s.sub(/_id$/, '').tr('_', ' ').capitalize
       error_list = errors.on(col).map{|e|" - #{e}"} if !errors.on(col).nil?
       "<p class='crushyfield %s'><label for='%s'>%s</label><span class='crushyfield-error-list'>%s</span><br />\n%s</p>\n" % [error_list&&'crushyfield-error', crushyid_for(col), field_name, error_list, crushyinput(col, o)]
     end
