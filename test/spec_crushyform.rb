@@ -359,9 +359,10 @@ describe 'Crushyform' do
   should 'use crushyform_schema keys by default for the list of field to put in the form' do
     form = Haiku.new.crushyform
     form.should.not==''
-    Haiku.crushyform_schema.keys.each do |k|
+    (Haiku.crushyform_schema.keys - [:id]).each do |k|
       form.should.match(/#{Haiku.new.crushyid_for(k)}/)
     end
+    form.should.not.match(/#{Haiku.new.crushyid_for(:id)}/)
   end
   
 end
