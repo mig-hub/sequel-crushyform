@@ -246,6 +246,8 @@ describe 'Crushyfield types' do
   
   should 'have a type that does nothing' do
     Attached.new.crushyinput(:filesize).should==''
+    Attached.new.crushyfield(:filesize).should==''
+    Attached.new.crushyfield(:title, {:type=>:none}).should==''
   end
   
   should 'escape html by default on text fields' do
