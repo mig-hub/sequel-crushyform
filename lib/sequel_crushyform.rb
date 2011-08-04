@@ -1,7 +1,7 @@
 module ::Sequel::Plugins::Crushyform
   
   module ClassMethods
-    def crushyform_version; [0,0,6]; end
+    def crushyform_version; [0,0,7]; end
     # Schema
     def crushyform_schema
       @crushyform_schema ||= default_crushyform_schema
@@ -132,7 +132,7 @@ module ::Sequel::Plugins::Crushyform
     # Which means there could be a colision.
     def crushyid_for(col); "%s-%s-%s" % [id||'new',self.class.name,col]; end
     # Used to determine a humanly readable representation of the entry on one line of text
-    def to_label; model.label_column.nil? ? [self.new? ? 'New' : nil, model.human_name, id].compact!.join(' ') : self.__send__(model.label_column).to_s.tr("\n\r", ' '); end
+    def to_label; model.label_column.nil?||self.new? ? [self.new? ? 'New' : nil, model.human_name, id].compact!.join(' ') : self.__send__(model.label_column).to_s.tr("\n\r", ' '); end
     # Provide a thumbnail for the column
     def to_thumb(c)
       current = self.__send__(c)

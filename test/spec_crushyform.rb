@@ -187,7 +187,7 @@ describe 'Crushyform miscellaneous helpers' do
   
   should 'have a label based on Model::label_column' do
     Author.first.to_label.should=='Bradbury'
-    Author.new(:surname=>'Brautigan').to_label.should=='Brautigan'
+    Author.new.to_label.should=='New Author'
   end
   
   should 'Have a fallback label when label_column is nil' do
