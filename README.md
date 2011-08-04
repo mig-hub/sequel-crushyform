@@ -60,15 +60,15 @@ Options give the action URL and method.
 
 Now say you want to have all the default options, but you want a wrapping form tag, you can do that:
 
-    BlogPost.new.crushyform( model.crushyform_schema.keys, "/new_blog" ) # Returns a nice form (a crushy form to be precise)
+    BlogPost.new.crushyform( BlogPost.crushyform_schema.keys, "/new_blog" ) # Returns a nice form (a crushy form to be precise)
 
-You have to put the default value `model.crushyform_schema.keys` because in the order of priority, the list of columns is more important
+You have to put the default value `Model.crushyform_schema.keys` because in the order of priority, the list of columns is more important
 
 This is due to the fact that in a real case scenario we are more likely to use the version without a wrapping form tag.
 Mainly because we want to add some other hidden inputs like a destination, a method override in order to generate a PUT request or a pseudo XHR value.
 
 Another reason might be that you want to add other fields to the tag. 
-The default tag is pretty basic and is always considered multipart/form-data for simplicity.
+The default tag is pretty basic.
 
 CSS CLASSES
 ===========
@@ -301,6 +301,7 @@ CHANGE LOG
 0.0.2 Use HTML5 attribute `required`
 0.0.3 Fix a bug on the default value for label :name
 0.0.4 Fix type `:none`
+0.0.5 Crushyform method guesses the enctype
 
 COPYRIGHT
 =========

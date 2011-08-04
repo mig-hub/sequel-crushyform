@@ -1,7 +1,7 @@
 module ::Sequel::Plugins::Crushyform
   
   module ClassMethods
-    def crushyform_version; [0,0,4]; end
+    def crushyform_version; [0,0,5]; end
     # Schema
     def crushyform_schema
       @crushyform_schema ||= default_crushyform_schema
@@ -101,7 +101,8 @@ module ::Sequel::Plugins::Crushyform
     def crushyform(columns=model.crushyform_schema.keys, action=nil, meth='POST')
       columns.delete(:id)
       fields = columns.inject(""){|out,c|out+crushyfield(c.to_sym)}
-      action.nil? ? fields : "<form action='%s' method='%s' enctype='multipart/form-data'>%s</form>\n" % [action, meth, fields]
+      enctype = fields.match(/type='file'/) ? "enctype='multipart/form-data'" : ''
+      action.nil? ? fields : "<form action='%s' method='%s' %s>%s</form>\n" % [action, meth, enctype, fields]
     end
     # crushyfield is crushyinput but with label+error
     def crushyfield(col, o={})

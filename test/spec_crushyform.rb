@@ -92,6 +92,16 @@ class Attached < ::Sequel::Model
   ::StashMagic.with_public_root ROOT+'/test'
 end
 
+class Pic < ::Sequel::Model
+  plugin :schema
+  set_schema do
+    primary_key :id
+    String :name
+    String :image, :crushyform=>{:type=>:attachment}
+  end
+  create_table unless table_exists?
+end
+
 # ========
 # = Test =
 # ========
@@ -366,6 +376,11 @@ describe 'Crushyform' do
       form.should.match(/#{Haiku.new.crushyid_for(k)}/)
     end
     form.should.not.match(/#{Haiku.new.crushyid_for(:id)}/)
+  end
+  
+  should 'make forms with enctype automated' do
+    Haiku.new.crushyform(Haiku.crushyform_schema.keys, '/url').should.not.match(/enctype='multipart\/form-data'/)
+    Pic.new.crushyform(Pic.crushyform_schema.keys, '/url').should.match(/enctype='multipart\/form-data'/)
   end
   
 end
