@@ -102,6 +102,8 @@ class Pic < ::Sequel::Model
   create_table unless table_exists?
 end
 
+class WithAccronymYMCAName < ::Sequel::Model; end
+
 # ========
 # = Test =
 # ========
@@ -151,6 +153,10 @@ describe 'Crushyform miscellaneous helpers' do
     Haiku.crushyform_version.size.should==3
   end
   
+  should 'have a human readable name' do
+    WithAccronymYMCAName.human_name.should=='With Accronym YMCA Name'
+  end
+  
   should 'have a correct default crushyid' do
     ShippingAddress.new.crushyid_for(:address_body).should=='new-ShippingAddress-address_body'
     ShippingAddress.first.crushyid_for(:address_body).should=='1-ShippingAddress-address_body'
@@ -181,10 +187,12 @@ describe 'Crushyform miscellaneous helpers' do
   
   should 'have a label based on Model::label_column' do
     Author.first.to_label.should=='Bradbury'
+    Author.new(:surname=>'Brautigan').to_label.should=='Brautigan'
   end
   
   should 'Have a fallback label when label_column is nil' do
-    ShippingAddress.first.to_label.should=="ShippingAddress 1"
+    ShippingAddress.first.to_label.should=="Shipping Address 1"
+    ShippingAddress.new.to_label.should=="New Shipping Address"
   end
   
   should 'avoid line breaks if label column is a multiline field' do

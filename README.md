@@ -302,6 +302,7 @@ CHANGE LOG
 0.0.3 Fix a bug on the default value for label :name
 0.0.4 Fix type `:none`
 0.0.5 Crushyform method guesses the enctype
+0.0.6 Human name for classes and label for new records
 
 COPYRIGHT
 =========
