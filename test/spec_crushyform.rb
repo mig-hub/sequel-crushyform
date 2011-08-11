@@ -268,6 +268,10 @@ describe 'Crushyfield types' do
     Attached.new.crushyfield(:title, {:type=>:none}).should==''
   end
   
+  should 'wrap textfileds with double quotes in order to allow apostrophes' do
+    Haiku.new.crushyinput(:title, {:input_value=>"It's my life"}).should.match(/value="It's my life"/)
+  end
+  
   should 'escape html by default on text fields' do
     Haiku.new.crushyinput(:title, {:input_value=>"<ScRipT >alert('test');</ScRipT >"}).should.match(/&lt;ScRipT &gt;alert\('test'\);&lt;\/ScRipT &gt;/)
     Haiku.new.crushyinput(:body, {:input_value=>"<ScRipT >alert('test');</ScRipT >"}).should.match(/&lt;ScRipT &gt;alert\('test'\);&lt;\/ScRipT &gt;/)
@@ -316,12 +320,12 @@ describe 'Crushyfield types' do
   
   should 'format date/time/datetime correctly' do
     TestDateTime.new.db_schema[:meeting][:type].should== :time # Check that the correct type is used for following tests (see README)
-    TestDateTime.new.crushyinput(:birth).should.match(/value=''/)
-    TestDateTime.new.crushyinput(:birth,{:input_value=>::Time.now}).should.match(/value='\d{4}-\d{1,2}-\d{1,2}'/)
-    TestDateTime.new.crushyinput(:meeting).should.match(/value=''/)
-    TestDateTime.new.crushyinput(:meeting,{:input_value=>::Time.now}).should.match(/value='\d{1,2}:\d{1,2}:\d{1,2}'/)
-    TestDateTime.new.crushyinput(:when).should.match(/value=''/)
-    TestDateTime.new.crushyinput(:when,{:input_value=>::Time.now}).should.match(/value='\d{4}-\d{1,2}-\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}'/)
+    TestDateTime.new.crushyinput(:birth).should.match(/value=""/)
+    TestDateTime.new.crushyinput(:birth,{:input_value=>::Time.now}).should.match(/value="\d{4}-\d{1,2}-\d{1,2}"/)
+    TestDateTime.new.crushyinput(:meeting).should.match(/value=""/)
+    TestDateTime.new.crushyinput(:meeting,{:input_value=>::Time.now}).should.match(/value="\d{1,2}:\d{1,2}:\d{1,2}"/)
+    TestDateTime.new.crushyinput(:when).should.match(/value=""/)
+    TestDateTime.new.crushyinput(:when,{:input_value=>::Time.now}).should.match(/value="\d{4}-\d{1,2}-\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}"/)
   end
   
   should 'add format instructions for date/time/datetime after :required bit' do

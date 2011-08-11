@@ -1,6 +1,6 @@
 Gem::Specification.new do |s| 
   s.name = 'sequel-crushyform'
-  s.version = "0.0.7"
+  s.version = "0.0.8"
   s.platform = Gem::Platform::RUBY
   s.summary = "A Sequel plugin that helps building forms"
   s.description = "A Sequel plugin that helps building forms. It basically does them for you so that you can forget about the boring part. The kind of thing which is good to have in your toolbox for building a CMS."

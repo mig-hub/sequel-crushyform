@@ -304,6 +304,7 @@ CHANGE LOG
 0.0.5 Crushyform method guesses the enctype
 0.0.6 Human name for classes and label for new records
 0.0.7 Fix `Model#to_label`
+0.0.8 Fix bug with apostrophe in text fields
 
 COPYRIGHT
 =========

@@ -1,7 +1,7 @@
 module ::Sequel::Plugins::Crushyform
   
   module ClassMethods
-    def crushyform_version; [0,0,7]; end
+    def crushyform_version; [0,0,8]; end
     # Schema
     def crushyform_schema
       @crushyform_schema ||= default_crushyform_schema
@@ -24,7 +24,7 @@ module ::Sequel::Plugins::Crushyform
       @crushyform_types ||= {
         :none => proc{''},
         :string => proc do |m,c,o|
-          "<input type='%s' name='%s' value='%s' id='%s' class='%s' %s />%s\n" % [o[:input_type]||'text', o[:input_name], o[:input_value], m.crushyid_for(c), o[:input_class], o[:required]&&'required', o[:required]]
+          "<input type='%s' name='%s' value=\"%s\" id='%s' class='%s' %s />%s\n" % [o[:input_type]||'text', o[:input_name], o[:input_value], m.crushyid_for(c), o[:input_class], o[:required]&&'required', o[:required]]
         end,
         :boolean => proc do |m,c,o|
           crushid = m.crushyid_for(c)
