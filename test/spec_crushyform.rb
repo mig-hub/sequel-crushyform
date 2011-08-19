@@ -1,6 +1,6 @@
 require 'rubygems'
 require 'bacon'
-Bacon.summary_on_exit
+#Bacon.summary_on_exit
 
 F = ::File
 D = ::Dir
@@ -77,6 +77,21 @@ class ShippingAddress < ::Sequel::Model
   create_table unless table_exists?
 end
 ShippingAddress.create(:address_body=>"3 Mulholland Drive\n\rFlat C", :postcode=>'90210', :city=>'Richville')
+
+class Profile < ::Sequel::Model
+  plugin :schema
+  set_schema do
+    primary_key :id
+    String :fave_lang, :crushyform=>{:type=>:select,:select_options=>['ruby', 'forth', 'asm']}
+    String :fave_os, :crushyform=>{:type=>:select,:select_options=>[['GNU/Linux','sucker'], ['FreeBSD','saner'], ['Mac OSX','wanker'], ['Windows','loser']]}
+    String :fave_editor, :crushyform=>{:type=>:select,:select_options=>:editor_list}
+    String :fave_error, :crushyform=>{:type=>:select,:select_options=>:error_list}
+    Fixnum :fave_number, :crushyform=>{:type=>:select,:select_options=>[0,1,2,3,4,5,6,7,8,9]}
+  end
+  create_table unless table_exists?
+  def editor_list; ['emacs','vi','ed','sam']; end
+end
+Profile.create(:fave_lang=>'forth', :fave_os=>'saner', :fave_editor=>'ed', :fave_number=>3)
 
 require 'stash_magic'
 class Attached < ::Sequel::Model
@@ -360,6 +375,41 @@ describe 'Crushyfield types' do
     # Not validated
     Haiku.new.crushyfield(:title).should.match(/<span class='crushyfield-error-list'><\/span>/)
     Haiku.new.crushyfield(:title).should.match(/^<p class='crushyfield '/)
+  end
+  
+  describe 'Select' do
+    should 'Create a select dropdown out of an array' do
+      s = Profile[1].crushyfield(:fave_lang)
+      s.should.match(/<select name='model\[fave_lang\]' id='1-Profile-fave_lang' class=''>/)
+      s.scan(/<option/).size.should==3
+      s.scan(/selected/).size.should==1
+      s.should.match(/<option value='forth' selected>forth<\/option>/)
+      s.should.match(/ruby.*forth.*asm/m)
+    end
+    should 'Accept an array of key/value pairs' do
+      s = Profile[1].crushyfield(:fave_os)
+      s.should.match(/<select name='model\[fave_os\]' id='1-Profile-fave_os' class=''>/)
+      s.scan(/<option/).size.should==4
+      s.scan(/selected/).size.should==1
+      s.should.match(/<option value='saner' selected>FreeBSD<\/option>/)
+      s.should.match(/sucker.*saner.*wanker.*loser/m)
+    end
+    should 'Accept the name of an instance method that generates the Array' do
+      s = Profile[1].crushyfield(:fave_editor)
+      s.should.match(/<select name='model\[fave_editor\]' id='1-Profile-fave_editor' class=''>/)
+      s.scan(/<option/).size.should==4
+      s.scan(/selected/).size.should==1
+      s.should.match(/<option value='ed' selected>ed<\/option>/)
+    end
+    should 'Raise if the method is not an instance method' do
+      lambda{ Profile[1].crushyfield(:fave_error) }.should.raise(NoMethodError)
+    end
+    should 'Accept Fixnum columns and place selected correctly' do
+      s = Profile[1].crushyfield(:fave_number)
+      s.scan(/<option/).size.should==10
+      s.scan(/selected/).size.should==1
+      s.should.match(/<option value='3' selected>3<\/option>/)
+    end
   end
   
 end

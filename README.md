@@ -140,6 +140,7 @@ TYPES OF FIELD
 - :datetime is in the format YYYY-MM-DD HH:MM:SS because it is accepted by sequel setters as-is
 - :parent is a dropdown list to chose from
 - :attachment is for attachments (who guessed?).
+- :select could be used for fields like String or Fixnum but giving a limited number of options
 
 MORE ABOUT DATE/TIME FIELDS
 ---------------------------
@@ -227,6 +228,57 @@ Crushyform turns a multi-line text in a one liner if it is the label column.
     @address.to_label # => 4, Virginia Street Flat C
 
 You get the idea.
+
+MORE ABOUT SELECT FIELDS
+========================
+
+This basically the kind of field you want when you have a text field but people are limited to a dropdown list of options.
+Parent field could be in that category in fact. That is a Fixnum, but limited to available foreign keys.
+Another example would be a list like your Favourite editor in a list:
+
+- Emacs
+- Vi
+- Ed
+- Sam
+- Other
+
+To achieve that, you can set something like that:
+
+    class Profile < ::Sequel::Model
+		  plugin :schema
+		  set_schema do
+		    primary_key :id
+		    String :fave_editor, :crushyform=>{ :type=>:select, :select_options=>['Emacs', 'Vi', 'Ed', 'Sam', 'Other'] }
+		  end
+		end
+		
+This will create an appropriate dropdown instead of textfield. But the value is also what people see.
+Maybe you want to display the name of an editor, but what you want to record is a score from 0 to 10.
+This is not necessarily an integer as the purpose is just to show you how you make a dropdown with values different from what is displayed:
+
+    class Profile < ::Sequel::Model
+		  plugin :schema
+		  set_schema do
+		    primary_key :id
+		    Fixnum :how_much_you_worth, :crushyform=>{ :type=>:select, :select_options=>[['Emacs',5], ['Vi',5], ['Ed',10], ['Sam',9], ['Other', 0]] }
+		  end
+		end
+		
+You simply put a key/value Array instead of the bare value. Pretty straight forward.
+And you can also provide the name of an instance method instead as you might want an Array with dynamic content:
+
+    class Profile < ::Sequel::Model
+		  plugin :schema
+		  set_schema do
+		    primary_key :id
+		    String :hero, :crushyform=>{ :type=>:select, :select_options=> :draw_me_a_list }
+		  end
+		  def draw_me_a_list
+		    # Produce an Array dynamically
+			end
+		end
+		
+That's all.
 
 CRUSHYFORM SCHEMA
 =================

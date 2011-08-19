@@ -61,6 +61,18 @@ module ::Sequel::Plugins::Crushyform
         end,
         :attachment => proc do |m,c,o|
           "%s<input type='file' name='%s' id='%s' class='%s' />%s\n" % [m.to_thumb(c), o[:input_name], m.crushyid_for(c), o[:input_class], o[:required]]
+        end,
+        :select => proc do |m,c,o|
+          out = "<select name='%s' id='%s' class='%s'>\n" % [o[:input_name], m.crushyid_for(c), o[:input_class]]
+          o[:select_options] = m.__send__(o[:select_options]) unless o[:select_options].kind_of?(Array)
+          if o[:select_options].kind_of?(Array)
+            o[:select_options].each do |op|
+              key,val = op.kind_of?(Array) ? [op[0],op[1]] : [op,op]
+              selected = 'selected' if val==o[:input_value]
+              out << "<option value='%s' %s>%s</option>\n" % [val,selected,key]
+            end
+          end
+          out << "</select>%s\n" % [o[:required]]
         end
       }
     end
