@@ -1,7 +1,7 @@
 module ::Sequel::Plugins::Crushyform
   
   module ClassMethods
-    def crushyform_version; [0,0,8]; end
+    def crushyform_version; [0,1,0]; end
     # Schema
     def crushyform_schema
       @crushyform_schema ||= default_crushyform_schema
@@ -15,8 +15,8 @@ module ::Sequel::Plugins::Crushyform
           {:type=>v[:type]}
         end
       end
-      @schema.columns.each{|c|out[c[:name]]=out[c[:name]].update(c[:crushyform]) if c.has_key?(:crushyform)} if respond_to?(:schema)
       association_reflections.each{|k,v|out[v[:key]]={:type=>:parent} if v[:type]==:many_to_one}
+      @schema.columns.each{|c|out[c[:name]]=out[c[:name]].update(c[:crushyform]) if c.has_key?(:crushyform)} if respond_to?(:schema)
       out
     end
     # Types

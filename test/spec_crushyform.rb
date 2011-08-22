@@ -19,9 +19,11 @@ class Haiku < ::Sequel::Model
     text :body
     Boolean :published
     foreign_key :author_id, :authors
+    foreign_key :season_id, :crushyform=>{:type=>:string}
   end
   create_table unless table_exists?
   many_to_one :author
+  many_to_one :season
   one_to_many :reviews
   def validate
     errors[:title] << "is not good"
@@ -51,6 +53,16 @@ DB.create_table :reviews do
 end
 class Review < ::Sequel::Model
   many_to_one :haiku
+end
+
+class Season < ::Sequel::Model
+  plugin :schema
+  set_schema do
+    primary_key :id
+    String :name
+  end
+  create_table unless table_exists?
+  one_to_many :haikus
 end
 
 class TestDateTime < ::Sequel::Model
@@ -156,7 +168,8 @@ describe 'Crushyform when schema plugin is used' do
       :title      => {:type=>:custom,:name=>'Nice Title'},
       :body       => {:type=>:text},
       :published  => {:type=>:boolean},
-      :author_id  => {:type=>:parent}
+      :author_id  => {:type=>:parent},
+      :season_id  => {:type=>:string}
     }
   end
   
@@ -352,7 +365,7 @@ describe 'Crushyfield types' do
   should 'build parent field with a wrapped version of parent_model#to_dropdown' do
     Haiku.new.crushyinput(:author_id).should.match(/^<select.*>#{Regexp.escape Author.to_dropdown}<\/select>$/)
   end
-  
+
   should 'display a preview with an attachment field whenever it is possible' do
     a = Attached.new.set(:filename=>'/book.png')
     a.crushyinput(:filename).should.match(/^#{Regexp.escape a.to_thumb(:filename)}<input type='file'.*\/>\n$/)
