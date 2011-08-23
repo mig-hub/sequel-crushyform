@@ -349,11 +349,11 @@ describe 'Crushyfield types' do
   should 'format date/time/datetime correctly' do
     TestDateTime.new.db_schema[:meeting][:type].should== :time # Check that the correct type is used for following tests (see README)
     TestDateTime.new.crushyinput(:birth).should.match(/value=""/)
-    TestDateTime.new.crushyinput(:birth,{:input_value=>::Time.now}).should.match(/value="\d{4}-\d{1,2}-\d{1,2}"/)
+    TestDateTime.new.crushyinput(:birth,{:input_value=>::Time.now}).should.match(/value="\d{4}-\d{2}-\d{2}"/)
     TestDateTime.new.crushyinput(:meeting).should.match(/value=""/)
-    TestDateTime.new.crushyinput(:meeting,{:input_value=>::Time.now}).should.match(/value="\d{1,2}:\d{1,2}:\d{1,2}"/)
+    TestDateTime.new.crushyinput(:meeting,{:input_value=>::Time.now}).should.match(/value="\d{2}:\d{2}:\d{2}"/)
     TestDateTime.new.crushyinput(:when).should.match(/value=""/)
-    TestDateTime.new.crushyinput(:when,{:input_value=>::Time.now}).should.match(/value="\d{4}-\d{1,2}-\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}"/)
+    TestDateTime.new.crushyinput(:when,{:input_value=>::Time.now}).should.match(/value="\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}"/)
   end
   
   should 'add format instructions for date/time/datetime after :required bit' do

@@ -358,6 +358,7 @@ CHANGE LOG
 0.0.7 Fix `Model#to_label`
 0.0.8 Fix bug with apostrophe in text fields
 0.1.0 Add `:select` type and make `:parent` type overridable through `set_schema`
+0.1.1 Use strftime fordate/time (do not know why I did not !!!)
 
 COPYRIGHT
 =========
