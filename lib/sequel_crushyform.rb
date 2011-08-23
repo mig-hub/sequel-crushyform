@@ -101,7 +101,7 @@ module ::Sequel::Plugins::Crushyform
     end
     def reset_dropdown_cache; @dropdown_cache = nil; end
     # Generic column names for label
-    LABEL_COLUMNS = [:title, :label, :fullname, :full_name, :surname, :lastname, :last_name, :name, :firstname, :first_name, :caption, :reference, :file_name, :body]
+    LABEL_COLUMNS = [:title, :label, :fullname, :full_name, :surname, :lastname, :last_name, :name, :firstname, :first_name, :login, :caption, :reference, :file_name, :body]
     # Column used as a label
     def label_column; @label_column ||= LABEL_COLUMNS.find{|c|columns.include?(c)}; end
     def label_column=(n); @label_column=n; end
