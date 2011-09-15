@@ -1,7 +1,7 @@
 module ::Sequel::Plugins::Crushyform
   
   module ClassMethods
-    def crushyform_version; [0,1,1]; end
+    def crushyform_version; [0,1,2]; end
     # Schema
     def crushyform_schema
       @crushyform_schema ||= default_crushyform_schema
@@ -9,7 +9,7 @@ module ::Sequel::Plugins::Crushyform
     def default_crushyform_schema
       out = {}
       db_schema.each do |k,v|
-        out[k] = if v[:db_type]=='text'
+        out[k] = if [:sqlite,:mysql].include?(@db.database_type) && v[:db_type]=='text'
           {:type=>:text}
         else
           {:type=>v[:type]}
