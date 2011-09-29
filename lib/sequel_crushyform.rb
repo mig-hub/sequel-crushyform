@@ -1,7 +1,7 @@
 module ::Sequel::Plugins::Crushyform
   
   module ClassMethods
-    def crushyform_version; [0,1,3]; end
+    def crushyform_version; [0,1,4]; end
     # Schema
     def crushyform_schema
       @crushyform_schema ||= default_crushyform_schema
@@ -9,7 +9,7 @@ module ::Sequel::Plugins::Crushyform
     def default_crushyform_schema
       out = {}
       db_schema.each do |k,v|
-        out[k] = if respond_to?(:schema) && @schema.columns.find{|c|c[:name]==k}[:type]==:text
+        out[k] = if respond_to?(:schema) && (@schema.columns.find{|c|c[:name]==k}||{:type=>nil})[:type]==:text
           {:type=>:text} # Using :schema plugin is the safest
         elsif [:sqlite,:mysql].include?(@db.database_type) && v[:db_type]=='text'
           {:type=>:text} # Without :schema plugin Postgres uses text even for strings

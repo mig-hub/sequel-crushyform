@@ -131,6 +131,19 @@ end
 
 class WithAccronymYMCAName < ::Sequel::Model; end
 
+DB.create_table :mismatches do
+  primary_key :id
+  String :title
+  text :body
+end
+class Mismatch < ::Sequel::Model
+  plugin :schema
+  set_schema do
+    primary_key :id
+    String :title
+  end
+end
+
 # ========
 # = Test =
 # ========
@@ -170,6 +183,14 @@ describe 'Crushyform when schema plugin is used' do
       :published  => {:type=>:boolean},
       :author_id  => {:type=>:parent},
       :season_id  => {:type=>:string}
+    }
+  end
+  
+  should 'not raise when there is a database column that is not in @schema' do
+    Mismatch.default_crushyform_schema.should=={
+      :title=>{:type=>:string}, 
+      :id=>{:type=>:integer}, 
+      :body=>{:type=>:text}
     }
   end
   

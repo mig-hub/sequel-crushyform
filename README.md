@@ -361,6 +361,7 @@ CHANGE LOG
 0.1.1 Use strftime fordate/time (do not know why I did not !!!)
 0.1.2 Monkey patch, just prevent to have text areas instead of text fields when using PostgreSQL
 0.1.3 Still use the @schema value for :text type when :schema plugin is used
+0.1.4 Do not raise when there is a mismatch between db_schema and schema
 
 COPYRIGHT
 =========
